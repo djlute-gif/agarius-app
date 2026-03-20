@@ -1,0 +1,27 @@
+FROM gitpod/workspace-full
+
+USER gitpod
+
+# Java 17
+RUN bash -c ". /home/gitpod/.sdkman/bin/sdkman-init.sh && sdk install java 17.0.9-tem"
+
+# Android SDK
+ENV ANDROID_HOME=/home/gitpod/android-sdk
+ENV ANDROID_SDK_ROOT=/home/gitpod/android-sdk
+ENV PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/34.0.0
+
+RUN mkdir -p $ANDROID_HOME/cmdline-tools && \
+    curl -s https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o /tmp/cmdtools.zip && \
+    unzip -q /tmp/cmdtools.zip -d /tmp/cmdtools && \
+    mv /tmp/cmdtools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest && \
+    rm /tmp/cmdtools.zip
+
+RUN yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+RUN $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+    "platform-tools" \
+    "platforms;android-34" \
+    "build-tools;34.0.0"
+
+# Node LTS
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && \
+    sudo apt-get install -y nodejs
